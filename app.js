@@ -1,19 +1,29 @@
 const express = require("express");
+const dotenv = require("dotenv");
+const rateLimit = require("express-rate-limit");
 const { errorMiddleware } = require("./middlewares/ErrorMiddleware");
 const userRoutes = require("./routers/UserRoutes");
+const cors = require("cors")
+dotenv.config();
 const app = express();
+app.use(cors({origin : "*"}))
 
 app.use(express.json());
 
-app.use("/users", userRoutes);
-app.use(errorMiddleware);
-app.use((error, request, respons, next) => {
-  respons.status(error.statu).json({
-    message: err.message || "Something went wrong",
-  });
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  message: "Too many requests from this IP, please try again later."
 });
-const PORT = process.env.PORT;
+app.use(limiter);
 
+
+
+app.use("/users", userRoutes);
+
+app.use(errorMiddleware);
+
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`SERVER IS RUNNING PORT ${PORT}`);
+  console.log(`SERVER IS RUNNING ON PORT ${PORT}`);
 });

@@ -2,13 +2,11 @@ const fs = require("fs");
 const path = require("path");
 const { userValidate } = require("../validations/userValidate");
 const bcrypt = require("bcrypt");
-const { response } = require("express");
 
+// const sendMail = require("../utils/sendMails")
 let users = [];
 
-
 const userFilePath = path.join(__dirname, "..", "db", "users.json");
-
 
 if (fs.existsSync(userFilePath)) {
   users = JSON.parse(fs.readFileSync(userFilePath, "utf8"));
@@ -18,84 +16,133 @@ if (fs.existsSync(userFilePath)) {
 
 // Get all users
 function findAll(req, res) {
-  res.json({ message: "User list", data: [users] });
+  res.json({ message: "User list", data: users });
 }
 
 // Get one user
 function findOne(req, res, next) {
-  const id = req.params.id;
-  const user = users.find((user) => user.id == id);
+  const id = Number(req.params.id);
+  const user = users.find((user) => user.id === id);
 
   if (!user) {
-    const error = new Error("User not found")
-    error.status(404)
+    const error = new Error("User not found");
+    error.status = 404;
     return next(error);
   }
 
-  res.json({ message: "User found", data: [user] });
+  res.json({ message: "User found", data: user });
 }
 
 // Create user
-function createUser(req, res, next) {
+async function createUser(req, res, next) {
+  try {
+    const { error, value } = userValidate.validate(req.body, { abortEarly: false });
 
-const {error}=userValidate(req.body)
+    if (error) {
+      const messages = error.details.map((err) => err.message);
+      error.message = messages;
+      return next(error);
+    }
 
-if(error){
-  return res.status(400).json({message : error.message})
-}
+    const { email, password, username } = value; // تأكد إن الاسم موجود
 
-const { email, password } = req.body;
+    const existUser = users.find((user) => user.email === email);
 
-const existUser = users.find((user) => user.email == email);
-  if (existUser) {
-    const error = new Error("Email already exists");
-    error.status(409);
-    return next(error);
+    if (existUser) {
+      const err = new Error("Email already exists");
+      err.status = 409;
+      return next(err);
+    }
+
+    const hashPassword = await bcrypt.hash(password, 12);
+
+    // const avatar = req.file?.path ?? "uploads/avatar.png" 
+    
+    const avatar = req.files?.avatar.map(file => file.path) ?? "uploads/avatar.png"
+
+    const docs = req.files?.docs.map(file => file.path)
+    const newUser = {
+      ...value,
+      id: users.length + 1,
+      password: hashPassword,
+      avatar,
+      docs
+    };
+
+    users.push(newUser);
+    fs.writeFileSync(userFilePath, JSON.stringify(users));
+
+    // إرسال الإيميل بطريقة safe
+    try {
+      await sendMail(email, username, "Notification");
+    } catch (err) {
+      console.error("Email failed:", err.message);
+    }
+
+    res.status(201).json({
+      message: "User created",
+      data: newUser,
+    });
+  } catch (err) {
+    next(err);
   }
-  const hashpassword = bcrypt.hash(password , 12)
-  const newUser = { id: users.length + 1, email, password : hashpassword };
-  users.push(newUser);
-
-  fs.writeFileSync(userFilePath, JSON.stringify(users));
-
-  res.json({ message: "User created", data: [newUser] });
 }
-
 // Update user
-function updateUser(req, res, next) {
-  const id = req.params.id;
-  const { email, password } = req.body;
+async function updateUser(req, res, next) {
+  try {
+    const id = Number(req.params.id);
+    
+    const { email, password } = req.body;
 
-  const index = users.findIndex((user) => user.id == id);
-  if (index === -1) return next(res.status(404));
+    const index = users.findIndex((user) => user.id === id);
+    if (index === -1) {
+      const err = new Error("User not found");
+      err.status = 404;
+      return next(err);
+    }
 
-  if (email) {
-    const emailExist = users.find(
-      (user) => user.email === email && user.id != id
-    );
-    if (emailExist) return next(new Error(res.status(409)));
+    // Check email
+    if (email) {
+      const emailExist = users.find((user) => user.email === email && user.id !== id);
+      if (emailExist) {
+        const err = new Error("Email already exists");
+        err.status = 409;
+        return next(err);
+      }
+      users[index].email = email;
+    }
+
+    // Update password
+    if (password) {
+      users[index].password = await bcrypt.hash(password, 12);
+    }
+
+    fs.writeFileSync(userFilePath, JSON.stringify(users, null, 2));
+
+    res.json({
+      message: "User updated successfully",
+      data: users[index],
+    });
+  } catch (err) {
+    const error = new Error("Internal Server Error");
+    error.status = 500;
+    next(error);
   }
-
-  users[index] = {
-    ...users[index],
-    ...(email && { email }),
-    ...(password && { password }),
-  };
-
-  fs.writeFileSync(userFilePath, JSON.stringify(users));
-
-  res.json({ message: "User updated successfully", data: users[index] });
 }
 
 // Delete user
 function removeUser(req, res, next) {
-  const id = req.params.id;
+  const id = Number(req.params.id);
 
-  const index = users.findIndex((user) => user.id == id);
-  if (index === -1) return next(new Error("User not found"));
+  const index = users.findIndex((user) => user.id === id);
+  if (index === -1) {
+    const error = new Error("User not found");
+    error.status = 404;
+    return next(error);
+  }
 
   users.splice(index, 1);
-  fs.writeFileSync(userFilePath, JSON.stringify(users, null, 2));
+  fs.writeFileSync(userFilePath, JSON.stringify(users));
 
   res.json({ message: "User deleted successfully" });
 }

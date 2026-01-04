@@ -1,22 +1,83 @@
 [
   {
     "id": 1,
-    "email": "hossam@122",
-    "password": "hossam123"
+    "email": "mohamed-2@example.com",
+    "password": "$2b$12$4fT.6nTKmTzJnMmtYj9Yl.Z7i6mQEiwR3AYKLlIF6216VOoIfHchq"
+  },
+  { "id": 3, "email": "mansor@122", "password": "mansor123" },
+  { "id": 4, "email": "alaa@122", "password": "alaa123" },
+  {
+    "username": "mohamed",
+    "email": "mohamed-1@example.com",
+    "password": "12345678",
+    "age": 25,
+    "id": 5
   },
   {
-    "id": 2,
-    "email": "mohamed@122",
-    "password": "mohamed123"
+    "email": "mohamedabouallah-39@gmail.com",
+    "password": "$2b$12$4wBBmWuU1Yk2lqAUP986IOik8xHvmUk4ZvaQRfrzLHkAWy9OQ23dG",
+    "username": "mohamedhossam",
+    "age": 20,
+    "id": 5,
+    "avatar": "uploads\\1767566879976 - IMG_20240805_143627_826.webp"
   },
   {
-    "id": 3,
-    "email": "mansor@122",
-    "password": "mansor123"
+    "email": "mohamedabouallah-49@gmail.com",
+    "password": "$2b$12$jFvQTEwESttlSrYYySMqYOo3xDg1c4M00hBi7YuLXwjoDMBAH7gCi",
+    "username": "mohamedhossam",
+    "age": 20,
+    "id": 6,
+    "avatar": ["uploads\\1767567226768 - IMG_20240805_143627_826.webp"],
+    "docs": [
+      "uploads\\1767567226787 - download.webp",
+      "uploads\\1767567226789 - JOKER-2152023.png",
+      "uploads\\1767567226817 - JOKER-2152023.png",
+      "uploads\\1767567226823 - Mohamed CV.pdf"
+    ]
   },
   {
-    "id": 4,
-    "email": "alaa@122",
-    "password": "alaa123"
+    "email": "mohamedabouallah-59@gmail.com",
+    "password": "$2b$12$6Gj2zyAR16Yp9ozrO9k62.FuTE1F.Jnqbjg.Vh8T.eKehkdV920ZO",
+    "username": "mohamedhossam",
+    "age": 20,
+    "id": 7,
+    "avatar": [
+      "uploads\\1767567811898 - IMG_20240805_143627_826.webp",
+      "uploads\\1767567811912 - 1767455577467 - Mohamed CV.pdf"
+    ],
+    "docs": [
+      "uploads\\1767567811932 - download.webp",
+      "uploads\\1767567811934 - JOKER-2152023.png",
+      "uploads\\1767567811939 - JOKER-2152023.png",
+      "uploads\\1767567811944 - Mohamed CV.pdf"
+    ]
+  },
+  {
+    "email": "mohamedabouallah-61@gmail.com",
+    "password": "$2b$12$639iUr4vCvTm1Yyh1zmccuMGmI6Yemby6GVvsKLQ9bAJwV8mndZ/W",
+    "username": "mohamedhossam",
+    "age": 20,
+    "id": 8,
+    "avatar": ["uploads\\1767568415846 - 1767455577467 - Mohamed CV.pdf"],
+    "docs": [
+      "uploads\\1767568415878 - download.webp",
+      "uploads\\1767568415880 - JOKER-2152023.png",
+      "uploads\\1767568415903 - JOKER-2152023.png",
+      "uploads\\1767568415909 - Mohamed CV.pdf"
+    ]
+  },
+  {
+    "email": "mohamedabouallah-62@gmail.com",
+    "password": "$2b$12$lAtAODaj0JmN.PYcYycF7.zBsz5XBJMrrcB47b1RTLlpAUtJg/JWe",
+    "username": "mohamedhossam",
+    "age": 20,
+    "id": 9,
+    "avatar": ["uploads\\1767568615515 - 1767455577467 - Mohamed CV.pdf"],
+    "docs": [
+      "uploads\\1767568615550 - download.webp",
+      "uploads\\1767568615551 - JOKER-2152023.png",
+      "uploads\\1767568615561 - JOKER-2152023.png",
+      "uploads\\1767568615569 - Mohamed CV.pdf"
+    ]
   }
 ]

@@ -1,9 +1,10 @@
-const Joi  = require("joi")
-
+const Joi = require("joi");
 
 const userValidate = Joi.object({
-    email : Joi.string().required(),
-    password : Joi.string.required()
-})
+  username: Joi.string().min(2).max(50).required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().min(6).required(),
+  age : Joi.number().positive().integer().required(),
+});
 
-module.exports = {userValidate}
+module.exports = { userValidate };
