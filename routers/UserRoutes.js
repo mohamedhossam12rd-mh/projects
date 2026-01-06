@@ -3,8 +3,8 @@ const express = require("express");
 const router = express.Router();
 
 const UserController = require("../controllers/UserControllers");
-const uploader = require("../../../epress-test/express/utils/uploadeServices");
-
+// const uploader = require("../../../epress-test/express/utils/uploadeServices");
+const {uploader} = require("../utils/userServices");
 router.get("", UserController.findAll);
 router.get("/:id", UserController.findOne);
 router.post("", 
