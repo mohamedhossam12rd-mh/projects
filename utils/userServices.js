@@ -7,10 +7,13 @@ const storage = multer.diskStorage({
 
 const fileFilter = (req, file, cb) => {
   if (file.fieldname === "avatar") {
-    if (file.mimetype.startsWith("image/")) {
+    if (
+      file.mimetype.startsWith("image/jpeg") ||
+      file.mimetype.startsWith("image/png")
+    ) {
       cb(null, true);
     } else {
-      cb(new Error("Avatar should be an image"), false);
+      cb(new Error("Avatar should be an image (jpg or png)"), false);
     }
   } else if (file.fieldname === "docs") {
     cb(null, true);
@@ -18,6 +21,7 @@ const fileFilter = (req, file, cb) => {
     cb(new Error("Unexpected field"), false);
   }
 };
+
 
 
 const uploader = multer({ 
