@@ -1,30 +1,29 @@
-const multer = require("multer")
-
+const multer = require("multer");
 
 const storage = multer.diskStorage({
-    destination : (request , file , cb) => cb(null , "uploads/"),
-    filename : (request , file , cb) => cb(null , `${Date.now()} - ${file.originalname}`)
-})
+  destination: (req, file, cb) => cb(null, "uploads/"),
+  filename: (req, file, cb) => cb(null, `${Date.now()} - ${file.originalname}`)
+});
 
 const fileFilter = (req, file, cb) => {
   if (file.fieldname === "avatar") {
-    if (file.mimetype === "image/png" || file.mimetype === "image/jpeg") {
+    if (file.mimetype.startsWith("image/")) {
       cb(null, true);
     } else {
-      cb(new Error("Only PNG and JPEG allowed for avatar"), false);
+      cb(new Error("Avatar should be an image"), false);
     }
   } else if (file.fieldname === "docs") {
-    if (file.mimetype === "application/pdf" || file.mimetype === "application/msword" || file.mimetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-      cb(null, true);
-    } else {
-      cb(new Error("Only PDF or Word files allowed for docs"), false);
-    }
+    cb(null, true);
   } else {
-    cb(null, false);
+    cb(new Error("Unexpected field"), false);
   }
 };
 
 
-const uploader = multer({storage , fileFilter})
+const uploader = multer({ 
+  storage, 
+  fileFilter
+});
 
-module.exports = uploader
+
+module.exports = { uploader };

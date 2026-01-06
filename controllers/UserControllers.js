@@ -44,7 +44,7 @@ async function createUser(req, res, next) {
       return next(error);
     }
 
-    const { email, password, username } = value; // تأكد إن الاسم موجود
+    const { email, password, username } = value; 
 
     const existUser = users.find((user) => user.email === email);
 
@@ -58,9 +58,9 @@ async function createUser(req, res, next) {
 
     // const avatar = req.file?.path ?? "uploads/avatar.png" 
     
-    const avatar = req.files?.avatar.map(file => file.path) ?? "uploads/avatar.png"
+      const avatar = req.files?.avatar?.map((file) => file.path) ?? "uploads/avatar.png";
 
-    const docs = req.files?.docs.map(file => file.path)
+    const docs = req.files?.docs?.map((file) => file.path) ?? [];
     const newUser = {
       ...value,
       id: users.length + 1,
