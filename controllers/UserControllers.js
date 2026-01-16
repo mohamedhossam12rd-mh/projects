@@ -80,8 +80,8 @@ async function createUser(req, res, next) {
 
     try {
       await sendMail(email, username, "Notification");
-    } catch (err) {
-      console.error("Email failed:", err.message);
+    } catch (error) {
+      console.error("Email failed:", error.message);
     }
     const secret = process.env.JWT_SECRET || "secret";
     const payload = { id: newUser.id, role: newUser.role };
