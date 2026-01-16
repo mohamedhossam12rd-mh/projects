@@ -5,6 +5,7 @@ const userValidate = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(6).required(),
   age : Joi.number().positive().integer().required(),
+  role : Joi.string().valid("admin" , "super_admin" , "user"). default("user").required(),
 });
 
 module.exports = { userValidate };

@@ -1,8 +1,10 @@
-const fs = require("fs");
-const path = require("path");
 const { userValidate } = require("../validations/userValidate");
 const bcrypt = require("bcrypt");
-
+const path = require("path");
+const fs = require("fs");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+dotenv.config();
 // const sendMail = require("../utils/sendMails")
 let users = [];
 
@@ -36,7 +38,9 @@ function findOne(req, res, next) {
 // Create user
 async function createUser(req, res, next) {
   try {
-    const { error, value } = userValidate.validate(req.body, { abortEarly: false });
+    const { error, value } = userValidate.validate(req.body, {
+      abortEarly: false,
+    });
 
     if (error) {
       const messages = error.details.map((err) => err.message);
@@ -44,7 +48,7 @@ async function createUser(req, res, next) {
       return next(error);
     }
 
-    const { email, password, username } = value; 
+    const { email, password, username } = value;
 
     const existUser = users.find((user) => user.email === email);
 
@@ -56,45 +60,53 @@ async function createUser(req, res, next) {
 
     const hashPassword = await bcrypt.hash(password, 12);
 
-    // const avatar = req.file?.path ?? "uploads/avatar.png" 
-    
-      const avatar = req.files?.avatar?.map((file) => file.path) ?? "uploads/avatar.png";
+    // const avatar = req.file?.path ?? "uploads/avatar.png"
+
+    const avatar =
+      req.files?.avatar?.map((file) => file.path) ?? "uploads/avatar.png";
 
     const docs = req.files?.docs?.map((file) => file.path) ?? [];
+
     const newUser = {
       ...value,
       id: users.length + 1,
       password: hashPassword,
       avatar,
-      docs
+      docs,
     };
 
     users.push(newUser);
     fs.writeFileSync(userFilePath, JSON.stringify(users));
 
-    // إرسال الإيميل بطريقة safe
     try {
       await sendMail(email, username, "Notification");
     } catch (err) {
       console.error("Email failed:", err.message);
     }
-
+    const secret = process.env.JWT_SECRET || "secret";
+    const payload = { id: newUser.id, role: newUser.role };
+    const expiredate = process.env.JWT_EXPIREDATE_IN || "7d";
+    const token = jwt.sign(payload, secret, { expiresIn: expiredate });
     res.status(201).json({
       message: "User created",
       data: newUser,
+      token
     });
   } catch (err) {
-    next(err);
+    const error = new Error("Internal Server Error");
+    error.status = 500;
+    next(error);
   }
 }
 // Update user
 async function updateUser(req, res, next) {
   try {
     const id = Number(req.params.id);
-    
+
     const { email, password } = req.body;
 
     const index = users.findIndex((user) => user.id === id);
+
     if (index === -1) {
       const err = new Error("User not found");
       err.status = 404;
@@ -103,12 +115,15 @@ async function updateUser(req, res, next) {
 
     // Check email
     if (email) {
-      const emailExist = users.find((user) => user.email === email && user.id !== id);
+      const emailExist = users.find(
+        (user) => user.email === email && user.id !== id,
+      );
       if (emailExist) {
         const err = new Error("Email already exists");
         err.status = 409;
         return next(err);
       }
+
       users[index].email = email;
     }
 
@@ -119,7 +134,7 @@ async function updateUser(req, res, next) {
 
     fs.writeFileSync(userFilePath, JSON.stringify(users, null, 2));
 
-    res.json({
+    res.status(200).json({
       message: "User updated successfully",
       data: users[index],
     });
@@ -127,6 +142,33 @@ async function updateUser(req, res, next) {
     const error = new Error("Internal Server Error");
     error.status = 500;
     next(error);
+  }
+}
+async function updateAvatar(req, res, next) {
+  try {
+    console.log("PARAM:", req.params.id);
+    console.log("FILE:", req.file);
+
+    const userId = Number(req.params.id);
+
+    const user = users.find((u) => u.id === userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    user.avatar = req.file.path;
+
+    res.json({
+      message: "Avatar updated",
+      user,
+    });
+  } catch (err) {
+    next(err);
   }
 }
 
@@ -153,4 +195,5 @@ module.exports = {
   createUser,
   updateUser,
   removeUser,
+  updateAvatar,
 };
