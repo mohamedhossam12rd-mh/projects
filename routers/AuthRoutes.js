@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 
-const { getUsers, saveUsers } = require("./Helper");
+const { getUsers, saveUsers } = require("../Auth/Helper");
 
 dotenv.config();
 

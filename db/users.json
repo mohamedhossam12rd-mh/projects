@@ -6,9 +6,7 @@
     "role": "super_admin",
     "age": 20,
     "id": 1,
-    "avatar": [
-      "uploads\\1767974245347 - download.jpg"
-    ],
+    "avatar": ["uploads\\1767974245347 - download.jpg"],
     "docs": []
   },
   {
@@ -18,9 +16,7 @@
     "role": "admin",
     "age": 20,
     "id": 2,
-    "avatar": [
-      "uploads\\1767974932178 - download.jpg"
-    ],
+    "avatar": ["uploads\\1767974932178 - download.jpg"],
     "docs": []
   },
   {
@@ -30,9 +26,7 @@
     "role": "user",
     "age": 20,
     "id": 3,
-    "avatar": [
-      "uploads\\1767974960208 - download.jpg"
-    ],
+    "avatar": ["uploads\\1767974960208 - download.jpg"],
     "docs": []
   },
   {
@@ -41,5 +35,25 @@
     "email": "mohamed123@gmail.com",
     "password": "$2b$10$wVGrVeFi/ft6NUz41ljLUOrSk3ZSPPaj3eLqa/gba3FJhTTbBaFaa",
     "role": "admin"
+  },
+  {
+    "username": "hossamhassan",
+    "email": "hossam123@gmail.com",
+    "password": "$2b$12$oPIwWYePyFVwD1KZkzSYUOR/Cg0iZ4rlc1zjA7QSGR3gfstOh.zAq",
+    "age": 20,
+    "role": "admin",
+    "id": 5,
+    "avatar": "uploads/avatar.png",
+    "docs": []
+  },
+  {
+    "username": "hossamhassan",
+    "email": "hossam12@gmail.com",
+    "password": "$2b$12$HiSlVOmnahCpX96kTzu2JOQ3ditQiVZIQuNxFVK.rjT/wHnTsutTO",
+    "age": 20,
+    "role": "user",
+    "id": 6,
+    "avatar": "uploads/avatar.png",
+    "docs": []
   }
 ]

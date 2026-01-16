@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 const rateLimit = require("express-rate-limit");
 const { errorMiddleware } = require("./middlewares/ErrorMiddleware");
 const userRoutes = require("./routers/UserRoutes");
-const AuthRoutes = require("./Auth/AuthRoutes")
+const AuthRoutes = require("./routers/AuthRoutes")
 const cors = require("cors")
 dotenv.config();
 const app = express();
