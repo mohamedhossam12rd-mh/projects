@@ -11,13 +11,17 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const sendMail = async (toEmail, userName) => {
+const sendMail = async (toEmail) => {
   try {
+        const emailTemplate = fs.readFileSync(
+          path.join(__dirname, "..", "views", "index.html"),
+          "utf8"
+        );
     await transporter.sendMail({
       from: process.env.USER_MAIL,
       to: toEmail,
       subject: "Welcome!",
-      html: `<h1>Welcome ${userName}!</h1>`,
+      html: emailTemplate,
     });
     console.log("Mail sent successfully to", toEmail);
     return { success: true };
@@ -27,4 +31,4 @@ const sendMail = async (toEmail, userName) => {
   }
 };
 
-module.exports = sendMail;
+module.exports = {sendMail};

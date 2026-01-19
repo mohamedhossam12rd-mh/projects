@@ -4,8 +4,8 @@ const path = require("path");
 const fs = require("fs");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
+const sendMail = require("../utils/sendMails");
 dotenv.config();
-// const sendMail = require("../utils/sendMails")
 let users = [];
 
 const userFilePath = path.join(__dirname, "..", "db", "users.json");
@@ -79,18 +79,26 @@ async function createUser(req, res, next) {
     fs.writeFileSync(userFilePath, JSON.stringify(users));
 
     try {
-      await sendMail(email, username, "Notification");
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ message: "Email required" });
+      }
+
+      const result = await sendMail(email);
+      if(result.success){
+        return res.json({message : "Mail sent" })
+      }
     } catch (error) {
       console.error("Email failed:", error.message);
     }
-    const secret = process.env.JWT_SECRET || "secret";
-    const payload = { id: newUser.id, role: newUser.role };
-    const expiredate = process.env.JWT_EXPIREDATE_IN || "7d";
-    const token = jwt.sign(payload, secret, { expiresIn: expiredate });
+    // const secret = process.env.JWT_SECRET || "secret";
+    // const payload = { id: newUser.id, role: newUser.role };
+    // const expiredate = process.env.JWT_EXPIREDATE_IN || "7d";
+    // const token = jwt.sign(payload, secret, { expiresIn: expiredate });
     res.status(201).json({
       message: "User created",
       data: newUser,
-      token
+      // token
     });
   } catch (err) {
     const error = new Error("Internal Server Error");
@@ -103,7 +111,9 @@ async function updateUser(req, res, next) {
   try {
     const id = Number(req.params.id);
 
-    const { email, password } = req.body;
+    const { email, password , age , role , username , avatar , docs} = req.body;
+
+
 
     const index = users.findIndex((user) => user.id === id);
 
@@ -132,6 +142,15 @@ async function updateUser(req, res, next) {
       users[index].password = await bcrypt.hash(password, 12);
     }
 
+    index.avatar = req.files.path;
+
+    index.docs = req.files.path
+
+    users[index] = {
+      ...users[index],
+      avatar,
+      docs,
+    }
     fs.writeFileSync(userFilePath, JSON.stringify(users, null, 2));
 
     res.status(200).json({
