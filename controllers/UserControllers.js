@@ -48,7 +48,7 @@ async function createUser(req, res, next) {
       return next(error);
     }
 
-    const { email, password, username } = value;
+    const { email, password} = value;
 
     const existUser = users.find((user) => user.email === email);
 
@@ -62,14 +62,13 @@ async function createUser(req, res, next) {
 
     // const avatar = req.file?.path ?? "uploads/avatar.png"
 
-    const avatar =
-      req.files?.avatar?.map((file) => file.path) ?? "uploads/avatar.png";
+    const avatar = req.files?.avatar?.map((file) => file.path) ?? "uploads/avatar.png";
 
     const docs = req.files?.docs?.map((file) => file.path) ?? [];
 
     const newUser = {
       ...value,
-      id: users.length + 1,
+      id: Date.now(),
       password: hashPassword,
       avatar,
       docs,
@@ -110,7 +109,7 @@ async function createUser(req, res, next) {
 async function updateUser(req, res, next) {
   try {
     const id = Number(req.params.id);
-    const { email, password , username , age} = req.body;
+    const { email, password , username , age , role} = req.body;
 
     const index = users.findIndex((user) => user.id === id);
 
@@ -169,6 +168,16 @@ async function updateUser(req, res, next) {
       }
       users[index].age = ageNum;
     }
+
+if (role !== undefined) {
+  if ( 
+    req.user.role !== "super_admin" &&
+    req.user.role !== "admin" &&
+    req.user.role !== "user") {
+    return res.status(403).json({ message: "Access Denide" });
+  }
+  users[index].role = role;
+}
 
 
     fs.writeFileSync(userFilePath, JSON.stringify(users, null, 2));

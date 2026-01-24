@@ -5,6 +5,7 @@ const { errorMiddleware } = require("./middlewares/ErrorMiddleware");
 const userRoutes = require("./routers/UserRoutes");
 const AuthRoutes = require("./routers/AuthRoutes")
 const cors = require("cors")
+const path = require("path")
 dotenv.config();
 const app = express();
 app.use(cors({origin : "*"}))
@@ -19,9 +20,9 @@ const limiter = rateLimit({
 app.use(limiter);
 
 
-
+app.use("/views",express.static(path.join(__dirname , "/views")))
 app.use("/users", userRoutes);
-app.use("/Auth" , AuthRoutes)
+app.use("/Auth"  ,AuthRoutes)
 
 app.use(errorMiddleware);
 
