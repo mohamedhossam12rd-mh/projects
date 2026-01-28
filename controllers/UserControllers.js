@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("fs");
 // const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
-const sendMail = require("../utils/sendMails");
+const {sendMail} = require("../utils/sendMails");
 dotenv.config();
 let users = [];
 
@@ -48,7 +48,7 @@ async function createUser(req, res, next) {
       return next(error);
     }
 
-    const { email, password} = value;
+    const { email, password } = value;
 
     const existUser = users.find((user) => user.email === email);
 
@@ -62,7 +62,8 @@ async function createUser(req, res, next) {
 
     // const avatar = req.file?.path ?? "uploads/avatar.png"
 
-    const avatar = req.files?.avatar?.map((file) => file.path) ?? "uploads/avatar.png";
+    const avatar =
+      req.files?.avatar?.map((file) => file.path) ?? "uploads/avatar.png";
 
     const docs = req.files?.docs?.map((file) => file.path) ?? [];
 
@@ -77,39 +78,26 @@ async function createUser(req, res, next) {
     users.push(newUser);
     fs.writeFileSync(userFilePath, JSON.stringify(users));
 
-    try {
-      const { email } = req.body;
-      if (!email) {
-        return res.status(400).json({ message: "Email required" });
-      }
+    await sendMail(email);
 
-      const result = await sendMail(email);
-      if(result.success){
-        return res.json({message : "Mail sent" })
-      }
-    } catch (error) {
-      console.error("Email failed:", error.message);
-    }
-    // const secret = process.env.JWT_SECRET || "secret";
-    // const payload = { id: newUser.id, role: newUser.role };
-    // const expiredate = process.env.JWT_EXPIREDATE_IN || "7d";
-    // const token = jwt.sign(payload, secret, { expiresIn: expiredate });
     res.status(201).json({
       message: "User created",
       data: newUser,
-      // token
     });
   } catch (err) {
-    const error = new Error("Internal Server Error");
-    error.status = 500;
-    next(error);
+    console.log("CREATE USER ERROR:", err);
+
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: err.message,
+    });
   }
 }
 // Update user
 async function updateUser(req, res, next) {
   try {
     const id = Number(req.params.id);
-    const { email, password , username , age , role} = req.body;
+    const { email, password, username, age, role } = req.body;
 
     const index = users.findIndex((user) => user.id === id);
 
@@ -139,16 +127,15 @@ async function updateUser(req, res, next) {
 
     //Update Avatar
     if (req.files?.avatar) {
-      users[index].avatar = req.files.avatar.map(file=>file.path);
+      users[index].avatar = req.files.avatar.map((file) => file.path);
     }
 
     //Update Docs
     if (req.files?.docs) {
-      users[index].docs = req.files.docs.map(file=>file.path);
+      users[index].docs = req.files.docs.map((file) => file.path);
     }
 
-
-        // Update username with validation
+    // Update username with validation
     if (username !== undefined) {
       if (username.trim().length < 3) {
         const err = new Error("Username must be at least 3 characters long");
@@ -169,16 +156,16 @@ async function updateUser(req, res, next) {
       users[index].age = ageNum;
     }
 
-if (role !== undefined) {
-  if ( 
-    req.user.role !== "super_admin" &&
-    req.user.role !== "admin" &&
-    req.user.role !== "user") {
-    return res.status(403).json({ message: "Access Denide" });
-  }
-  users[index].role = role;
-}
-
+    if (role !== undefined) {
+      if (
+        req.user.role !== "super_admin" &&
+        req.user.role !== "admin" &&
+        req.user.role !== "user"
+      ) {
+        return res.status(403).json({ message: "Access Denide" });
+      }
+      users[index].role = role;
+    }
 
     fs.writeFileSync(userFilePath, JSON.stringify(users, null, 2));
 
@@ -187,14 +174,12 @@ if (role !== undefined) {
       data: users[index],
     });
   } catch (err) {
-  
     console.error("Update user error:", err);
     const error = new Error("Internal Server Error");
     error.status = 500;
     next(error);
   }
 }
-
 
 // async function updateAvatar(req, res, next) {
 //   try {
@@ -214,7 +199,7 @@ if (role !== undefined) {
 //     }
 
 //     user.avatar = req.file.path;
-//   
+//
 
 //     res.json({
 //       message: "Avatar updated",
@@ -242,11 +227,11 @@ async function updateAvatar(req, res, next) {
     }
 
     if (req.files.avatar) {
-      user.avatar = req.files.avatar.map(file => file.path);
+      user.avatar = req.files.avatar.map((file) => file.path);
     }
 
     if (req.files.docs) {
-      user.docs = req.files.docs.map(file => file.path);
+      user.docs = req.files.docs.map((file) => file.path);
     }
 
     res.json({
